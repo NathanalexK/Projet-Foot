@@ -23,8 +23,8 @@ public class Joueur {
             return this.getPosition().y < j.getPosition().y;
         }
         return this.getPosition().y > j.getPosition().y;
-
     }
+
 
     @Override
     public String toString() {

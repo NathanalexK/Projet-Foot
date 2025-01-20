@@ -2,6 +2,7 @@ package org.example.foot;
 
 import org.example.utils.Constante;
 import org.example.utils.Geometrie;
+import org.example.utils.Rectangle;
 import org.example.utils.TraitementImage;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class Jeu {
     private Terrain terrain;
+    private Rectangle[] cages;
     private Point ballon;
     private List<Equipe> equipes;
     private Joueur pocesseurBallon;
@@ -38,6 +40,15 @@ public class Jeu {
         t.setLargeur((int) image.size().width);
         setTerrain(t);
 
+        List<Rectangle> rectangles = traitementImage.getRectangles();
+        if(rectangles.size() != 2) {
+            throw new Exception("Nombre de cage doit etre 2, provenu: " + rectangles.size());
+        }
+
+        this.cages = rectangles.toArray(new Rectangle[0]);
+//        this.cages[0] = rectangles.get(0);
+//        this.cages[1] = rectangles.get(1);
+
         for(TraitementImage.CircleInfo circleInfo: listeCercles) {
             Joueur j = new Joueur();
             if(circleInfo.color.equalsIgnoreCase("noir")) {
@@ -60,7 +71,15 @@ public class Jeu {
         }
 
         this.makeCampEquipes();
-        this.makeJoueursHorsJeu();
+//        this.makeJoueursHorsJeu();
+    }
+
+    public Jeu(String imagePath, int typeJeu) throws Exception {
+        this(imagePath);
+        if(typeJeu == Constante.JEU_AVANT_TIR) {
+            this.makeJoueursHorsJeu();
+
+        }
     }
 
 
@@ -75,8 +94,8 @@ public class Jeu {
             Double minDistance = Double.MAX_VALUE;
 
             for(Joueur joueur: this.getJoueurs()) {
-//                double distance = Geometrie.distance(joueur.getPosition(), ballon);
-                double distance = new Point2D.Double(joueur.getPosition().x, joueur.getPosition().y).distance(new Point2D.Double(ballon.x, ballon.y));
+                double distance = Geometrie.distance(joueur.getPosition(), ballon);
+//                double distance = new Point2D.Double(joueur.getPosition().x, joueur.getPosition().y).distance(new Point2D.Double(ballon.x, ballon.y));
                 System.out.println(joueur + " distance: " + distance);
 
                 if(minDistance > distance) {
@@ -130,8 +149,10 @@ public class Jeu {
 //            Joueur jExtreme = autreEquipe.getJoueursExtreme()[1];
 
             for(Joueur j: equipePossesseur.getJoueurs()) {
-                if(!j.equals(this.getPossesseurBallon()) && j.getPosition().y > dernierDefenseur.getPosition().y + dernierDefenseur.getTaille()) {
-                    System.out.println(true);
+//                if(!j.equals(this.getPossesseurBallon()) && j.getPosition().y > dernierDefenseur.getPosition().y + dernierDefenseur.getTaille()) {
+                if(true && j.getPosition().y > dernierDefenseur.getPosition().y + dernierDefenseur.getTaille()) {
+
+                        System.out.println(true);
                     j.setEstHorsJeu(true);
                 }
             }
@@ -140,7 +161,9 @@ public class Jeu {
 //            Joueur jExtreme = autreEquipe.getJoueursExtreme()[0];
 
             for(Joueur j: equipePossesseur.getJoueurs()) {
-                if(!j.equals(this.getPossesseurBallon()) && j.getPosition().y < dernierDefenseur.getPosition().y - dernierDefenseur.getTaille()) {
+//                if(!j.equals(this.getPossesseurBallon()) && j.getPosition().y < dernierDefenseur.getPosition().y - dernierDefenseur.getTaille()) {
+                if(true && j.getPosition().y < dernierDefenseur.getPosition().y - dernierDefenseur.getTaille()) {
+
                     System.out.println(true);
                     j.setEstHorsJeu(true);
                 }
@@ -209,8 +232,10 @@ public class Jeu {
 
 
         Imgcodecs.imwrite(outputPath, image);
+    }
 
-
+    public Joueur getGardien(String camp) {
+        return this.getEquipes().stream().filter(e -> e.getCamp().equalsIgnoreCase(camp)).findFirst().get().getGardien();
     }
 
 //    public void makeGardienEquipes() {
@@ -305,4 +330,20 @@ public class Jeu {
     public void setImage(Mat image) {
         this.image = image;
     }
+
+    public Rectangle[] getCages() {
+        return cages;
+    }
+
+    public void setCages(Rectangle[] cages) {
+        this.cages = cages;
+    }
+
+    //    public Point[][] getCages() {
+//        return cages;
+//    }
+//
+//    public void setCages(Point[][] cages) {
+//        this.cages = cages;
+//    }
 }
